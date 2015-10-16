@@ -14,15 +14,20 @@ AIM = {'North': (-1, 0),
        'South': (1, 0),
        'West': (0, -1)}
 
-class HeroTile:
+class HeroTile(object):
+
     def __init__(self, id):
         self.id = id
 
-class MineTile:
+
+class MineTile(object):
+
     def __init__(self, heroId = None):
         self.heroId = heroId
 
-class Game:
+
+class Game(object):
+
     def __init__(self, state):
         self.state = state
         self.board = Board(state['game']['board'])
@@ -41,8 +46,12 @@ class Game:
                     self.taverns_locs.add((row, col))
 
 
+class Board(object):
 
-class Board:
+    def __init__(self, board):
+        self.size = board['size']
+        self.tiles = self.__parseTiles(board['tiles'])
+
     def __parseTile(self, str):
         if (str == '  '):
             return AIR
@@ -62,10 +71,6 @@ class Board:
         matrix = [vector[i:i+self.size] for i in range(0, len(vector), self.size)]
 
         return [[self.__parseTile(x) for x in xs] for xs in matrix]
-
-    def __init__(self, board):
-        self.size = board['size']
-        self.tiles = self.__parseTiles(board['tiles'])
 
     def passable(self, loc):
         'true if can not walk through'
@@ -87,8 +92,8 @@ class Board:
         return (n_row, n_col)
 
 
+class Hero(object):
 
-class Hero:
     def __init__(self, hero):
         self.name = hero['name']
         self.pos = hero['pos']

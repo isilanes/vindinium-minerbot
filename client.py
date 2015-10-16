@@ -2,9 +2,10 @@
 
 import sys
 import requests
-from bot import RandomBot, SlowBot
 
-TIMEOUT=15
+from libvinidium import bot
+
+TIMEOUT = 15
 
 def get_new_game_state(session, server_url, key, mode='training', number_of_turns = 10):
     """Get a JSON from the server containing the current state of the game"""
@@ -27,10 +28,8 @@ def get_new_game_state(session, server_url, key, mode='training', number_of_turn
         print(r.text)
 
 def move(session, url, direction):
-    """Send a move to the server
-    
-    Moves can be one of: 'Stay', 'North', 'South', 'East', 'West' 
-    """
+    """Send a move to the server. Moves can be one of:
+        'Stay', 'North', 'South', 'East', 'West'"""
 
     try:
         r = session.post(url, {'dir': direction}, timeout=TIMEOUT)
@@ -44,58 +43,62 @@ def move(session, url, direction):
         print(e)
         return {'game': {'finished': True}}
 
-
 def is_finished(state):
     return state['game']['finished']
 
 def start(server_url, key, mode, turns, bot):
-    """Starts a game with all the required parameters"""
+    """Starts a game with all the required parameters."""
 
-    # Create a requests session that will be used throughout the game
+    # Create a requests session that will be used throughout the game:
     session = requests.session()
 
-    if(mode=='arena'):
-        print(u'Connected and waiting for other players to join…')
+    if mode=='arena':
+        print(u'Connected and waiting for other players to join...')
+
     # Get the initial state
     state = get_new_game_state(session, server_url, key, mode, turns)
     print("Playing at: " + state['viewUrl'])
 
+    heroes = None
     while not is_finished(state):
         # Some nice output ;)
         sys.stdout.write('.')
         sys.stdout.flush()
 
-        # Choose a move
+        # Choose a move:
         direction = bot.move(state)
 
-        # Send the move and receive the updated game state
+        # Send the move and receive the updated game state:
         url = state['playUrl']
         state = move(session, url, direction)
+        heroes = state["game"]["heroes"]
 
+    print [ [h["name"], h["gold"]] for h in heroes ]
     # Clean up the session
     session.close()
 
 
 if __name__ == "__main__":
-    if (len(sys.argv) < 4):
+    if len(sys.argv) < 4:
         print("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
         print('Example: %s mySecretKey training 20' % (sys.argv[0]))
     else:
         key = sys.argv[1]
         mode = sys.argv[2]
 
-        if(mode == "training"):
+        if mode == "training":
             number_of_games = 1
             number_of_turns = int(sys.argv[3])
         else: 
             number_of_games = int(sys.argv[3])
             number_of_turns = 300 # Ignored in arena mode
 
-        if(len(sys.argv) == 5):
+        if len(sys.argv) == 5:
             server_url = sys.argv[4]
         else:
             server_url = "http://vindinium.org"
 
         for i in range(number_of_games):
-            start(server_url, key, mode, number_of_turns, RandomBot())
-            print("\nGame finished: %d/%d" % (i+1, number_of_games))
+            start(server_url, key, mode, number_of_turns, bot.RandomBot())
+            string = "\nGame finished: {0}/{1}".format(i+1, number_of_games)
+            print(string)
