@@ -2,10 +2,6 @@ Forked from: https://github.com/ornicar/vindinium-starter-python.git
 
 Should work with python2 and python3.
 
-Install deps:
-
-    pip install -r requirements.txt
-
 Run with:
 
     python client.py <key> <[training|arena]> <number-of-games-to-play> [server-url]
