@@ -60,6 +60,10 @@ def start(server_url, key, mode, turns, bot):
     state = get_new_game_state(session, server_url, key, mode, turns)
     print("Playing at: " + state['viewUrl'])
 
+    print("'{0}'".format(state["game"]["board"]["tiles"]))
+    for h in state["game"]["heroes"]:
+        print h["id"], h["spawnPos"]
+
     every = 10
     i = 0
     while not is_finished(state):
