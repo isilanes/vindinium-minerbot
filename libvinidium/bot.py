@@ -3,11 +3,12 @@ from random import choice
 from game import Game
 
 class Bot(object):
-    pass
+
+    def __init__(self):
+        self.dirs = ['Stay', 'North', 'South', 'East', 'West']
 
 class RandomBot(Bot):
 
     def move(self, state):
         #game = Game(state) # unused for random
-        dirs = ['Stay', 'North', 'South', 'East', 'West']
-        return choice(dirs)
+        return choice(self.dirs)
