@@ -4,6 +4,7 @@ import sys
 import requests
 
 from libvinidium import bot
+from libvinidium import utils
 
 TIMEOUT = 15
 
@@ -59,10 +60,16 @@ def start(server_url, key, mode, turns, bot):
     state = get_new_game_state(session, server_url, key, mode, turns)
     print("Playing at: " + state['viewUrl'])
 
-    heroes = None
+    every = 10
+    i = 0
     while not is_finished(state):
+        i += 1
+
         # Some nice output ;)
-        sys.stdout.write('.')
+        if i >= every:
+            sys.stdout.write('.')
+            sys.stdout.flush()
+            i = 0
         sys.stdout.flush()
 
         # Choose a move:
@@ -71,11 +78,11 @@ def start(server_url, key, mode, turns, bot):
         # Send the move and receive the updated game state:
         url = state['playUrl']
         state = move(session, url, direction)
-        heroes = state["game"]["heroes"]
 
-    print [ [h["name"], h["gold"]] for h in heroes ]
     # Clean up the session
     session.close()
+
+    return utils.winner(state)
 
 
 if __name__ == "__main__":
@@ -99,6 +106,6 @@ if __name__ == "__main__":
             server_url = "http://vindinium.org"
 
         for i in range(number_of_games):
-            start(server_url, key, mode, number_of_turns, bot.RandomBot())
-            string = "\nGame finished: {0}/{1}".format(i+1, number_of_games)
+            winner = start(server_url, key, mode, number_of_turns, bot.RandomBot())
+            string = "\nGame finished: {0}/{1} - Winner: {2}".format(i+1, number_of_games, winner)
             print(string)
