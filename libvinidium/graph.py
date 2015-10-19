@@ -29,18 +29,19 @@ class MapGraph(object):
     """The whole map, as a directed graph."""
 
     def __init__(self):
+        self.size = None
         self.tile_array = []
         self.edges = {}
 
     def eat(self, board):
         """Read board string and populate graph with Tile nodes and Edges."""
 
-        size = int(math.sqrt(len(board)/2))
+        self.size = int(math.sqrt(len(board)/2))
         
         # Build array:
-        for i in range(size):
+        for i in range(self.size):
             col = []
-            for j in range(size):
+            for j in range(self.size):
                 tile_code, board = board[:2], board[2:]
                 this_tile = Tile(i, j, tile_code)
                 self.edges[(i,j)] = []
@@ -48,8 +49,8 @@ class MapGraph(object):
             self.tile_array.append(col)
 
         # From Tile array, build Edge list:
-        for i in range(size):
-            for j in range(size):
+        for i in range(self.size):
+            for j in range(self.size):
                 this_tile = self.tile_array[i][j]
                 if this_tile.type == "  " or this_tile.type[0] == "@":
                     # Only passable terrain and tiles with a hero (hence,
@@ -66,9 +67,41 @@ class MapGraph(object):
                             E = Edge(this_tile, other_tile)
                             self.edges[(i,j)].append(E)
 
+    def find_closest(self, i, j, goal="[]"):
+        """Find the Tile closest to (i,j) that is of type "goal".
+        This is a breadth-first search in a graph."""
+
+        visited = []
+        paths = [ [(i,j)] ]
+
+        for i in range(self.size*self.size): # worst case, avoid infinite loops
+            new_paths = []
+            for path in paths:
+                xy = path[-1]
+                for edge in self.edges[xy]:
+                    dest_xy = (edge.dest.pos_x, edge.dest.pos_y)
+                    if not dest_xy in visited:
+                        visited.append(dest_xy)
+                        new_path = path + [ dest_xy ]
+                        new_paths.append(new_path)
+                        x, y = dest_xy
+                        if self.tile_array[x][y].type == goal:
+                            return path
+
+            paths = new_paths
+
+        return None
+
+    def  __repr__(self):
+        string = ""
         for col in self.tile_array:
-            print col
+            line = ' '.join([ str(t) for t in col])
+            string += line + "\n"
+
+        return string
 
 
 M = MapGraph()
 M.eat(board)
+print(M)
+print M.find_closest(0, 1, "@3")
