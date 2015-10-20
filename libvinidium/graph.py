@@ -1,3 +1,4 @@
+import copy
 import math
 
 board = '##@1    ####    @4##      ########              ####            []        []    $-    ##    ##    $-$-    ##    ##    $-    []        []            ####  @3          ########      ##@2    ####      ##'
@@ -104,4 +105,11 @@ class MapGraph(object):
 M = MapGraph()
 M.eat(board)
 print(M)
-print M.find_closest(0, 1, "@3")
+
+path = M.find_closest(0, 1, "@3")
+
+N = copy.deepcopy(M)
+for x,y in path:
+    N.tile_array[x][y] = Tile(x, y, "::")
+
+print(N)
