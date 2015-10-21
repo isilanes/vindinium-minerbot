@@ -1,6 +1,6 @@
 from random import choice
 
-from game import Game
+from libvindinium import Game
 
 class Bot(object):
 
@@ -10,5 +10,10 @@ class Bot(object):
 class RandomBot(Bot):
 
     def move(self, state):
-        #game = Game(state) # unused for random
+        return choice(self.dirs)
+
+class MinerBot(Bot):
+
+    def move(self, state):
+        game = Game.Game(state) # unused for random
         return choice(self.dirs)
