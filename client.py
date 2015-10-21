@@ -3,8 +3,8 @@
 import sys
 import requests
 
-from libvinidium import bot
-from libvinidium import utils
+from libvindinium import Bot
+from libvindinium import utils
 
 TIMEOUT = 15
 
@@ -47,22 +47,18 @@ def move(session, url, direction):
 def is_finished(state):
     return state['game']['finished']
 
-def start(server_url, key, mode, turns, bot):
+def run_game(server_url, key, mode, turns, bot):
     """Starts a game with all the required parameters."""
 
     # Create a requests session that will be used throughout the game:
     session = requests.session()
 
     if mode=='arena':
-        print(u'Connected and waiting for other players to join...')
+        print('Connected and waiting for other players to join...')
 
     # Get the initial state
     state = get_new_game_state(session, server_url, key, mode, turns)
     print("Playing at: " + state['viewUrl'])
-
-    print("'{0}'".format(state["game"]["board"]["tiles"]))
-    for h in state["game"]["heroes"]:
-        print h["id"], h["spawnPos"]
 
     every = 10
     i = 0
@@ -110,6 +106,6 @@ if __name__ == "__main__":
             server_url = "http://vindinium.org"
 
         for i in range(number_of_games):
-            winner = start(server_url, key, mode, number_of_turns, bot.RandomBot())
+            winner = run_game(server_url, key, mode, number_of_turns, Bot.RandomBot())
             string = "\nGame finished: {0}/{1} - Winner: {2}".format(i+1, number_of_games, winner)
             print(string)

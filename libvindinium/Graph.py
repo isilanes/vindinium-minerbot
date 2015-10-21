@@ -32,6 +32,14 @@ class BoardGraph(object):
         self.tile_array = []
         self.edges = {}
 
+    def  __repr__(self):
+        string = ""
+        for col in self.tile_array:
+            line = ' '.join([ str(t) for t in col])
+            string += line + "\n"
+
+        return string
+
     def eat(self, board):
         """Read board string and populate graph with Tile nodes and Edges."""
 
@@ -66,9 +74,10 @@ class BoardGraph(object):
                             E = Edge(this_tile, other_tile)
                             self.edges[(i,j)].append(E)
 
-    def find_closest(self, i, j, goal="[]"):
-        """Find the Tile closest to (i,j) that is of type "goal".
-        This is a breadth-first search in a graph."""
+    def path_to_closest(self, i, j, goals=["[]"]):
+        """Find path to Tile closest to (i,j) that is of one of the types in "goals".
+        This is a breadth-first search in a graph. Returns the
+        path joining (i,j) with destination."""
 
         visited = []
         paths = [ [(i,j)] ]
@@ -84,20 +93,12 @@ class BoardGraph(object):
                         new_path = path + [ dest_xy ]
                         new_paths.append(new_path)
                         x, y = dest_xy
-                        if self.tile_array[x][y].type == goal:
+                        if self.tile_array[x][y].type in goals:
                             return path
 
             paths = new_paths
 
         return None
-
-    def  __repr__(self):
-        string = ""
-        for col in self.tile_array:
-            line = ' '.join([ str(t) for t in col])
-            string += line + "\n"
-
-        return string
 
 
 if __name__ == "__main__":
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     print(M)
 
     # Find path:
-    path = M.find_closest(0, 1, "@3")
+    path = M.path_to_closest(0, 1, ["$-", "[]"])
 
     # Print out result in a second map:
     N = copy.deepcopy(M)

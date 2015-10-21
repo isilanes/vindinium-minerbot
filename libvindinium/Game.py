@@ -1,4 +1,4 @@
-from libvinidium import Graph
+from libvindinium import Graph
 
 class Game(object):
     """Take state JSON object and build a whole "game-status" object."""
