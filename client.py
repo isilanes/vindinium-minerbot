@@ -106,6 +106,6 @@ if __name__ == "__main__":
             server_url = "http://vindinium.org"
 
         for i in range(number_of_games):
-            winner = run_game(server_url, key, mode, number_of_turns, Bot.RandomBot())
+            winner = run_game(server_url, key, mode, number_of_turns, Bot.MinerBot())
             string = "\nGame finished: {0}/{1} - Winner: {2}".format(i+1, number_of_games, winner)
             print(string)

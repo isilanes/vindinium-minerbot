@@ -1,7 +1,11 @@
 def winner(state):
     """Returs who won (or None if tie)."""
 
-    heroes = state["game"]["heroes"]
+    try:
+        heroes = state["game"]["heroes"]
+    except:
+        print("Can't find winner")
+        return None
 
     dsu = [ (h["gold"], h["name"]) for h in heroes ]
     dsu.sort()

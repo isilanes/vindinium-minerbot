@@ -27,10 +27,11 @@ class Edge(object):
 class BoardGraph(object):
     """The whole board, as a directed graph."""
 
-    def __init__(self):
+    def __init__(self, board = ""):
         self.size = None
         self.tile_array = []
         self.edges = {}
+        self.eat(board)
 
     def  __repr__(self):
         string = ""
@@ -94,11 +95,11 @@ class BoardGraph(object):
                         new_paths.append(new_path)
                         x, y = dest_xy
                         if self.tile_array[x][y].type in goals:
-                            return path
+                            return path + [ dest_xy ]
 
             paths = new_paths
 
-        return None
+        return [ (i,j) ]
 
 
 if __name__ == "__main__":
@@ -119,11 +120,11 @@ if __name__ == "__main__":
     print(M)
 
     # Find path:
-    path = M.path_to_closest(0, 1, ["$-", "[]"])
+    path = M.path_to_closest(3, 0, ["$-", "[]"])
 
     # Print out result in a second map:
     N = copy.deepcopy(M)
     print "----\n"
-    for x,y in path:
+    for x,y in path[:-1]:
         N.tile_array[x][y] = Tile(x, y, "::")
     print(N)
