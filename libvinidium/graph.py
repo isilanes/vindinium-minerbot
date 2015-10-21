@@ -1,8 +1,6 @@
 import copy
 import math
 
-board = '##@1    ####    @4##      ########              ####            []        []    $-    ##    ##    $-$-    ##    ##    $-    []        []            ####  @3          ########      ##@2    ####      ##'
-
 class Tile(object):
     """Any tile is a node in a graph."""
 
@@ -26,8 +24,8 @@ class Edge(object):
         return '({0.pos_x}, {0.pos_y}) --> ({1.pos_x}, {1.pos_y})'.format(self.src, self.dest)
 
 
-class MapGraph(object):
-    """The whole map, as a directed graph."""
+class BoardGraph(object):
+    """The whole board, as a directed graph."""
 
     def __init__(self):
         self.size = None
@@ -102,14 +100,29 @@ class MapGraph(object):
         return string
 
 
-M = MapGraph()
-M.eat(board)
-print(M)
+if __name__ == "__main__":
+    board  = '##@1    ####    @4##'
+    board += '      ########      '
+    board += '        ####        '
+    board += '    []        []    '
+    board += '$-    ##    ##    $-'
+    board += '$-    ##    ##    $-'
+    board += '    []        []    '
+    board += '        ####  @3    '
+    board += '      ########      '
+    board += '##@2    ####      ##'
 
-path = M.find_closest(0, 1, "@3")
+    # Define map:
+    M = BoardGraph()
+    M.eat(board)
+    print(M)
 
-N = copy.deepcopy(M)
-for x,y in path:
-    N.tile_array[x][y] = Tile(x, y, "::")
+    # Find path:
+    path = M.find_closest(0, 1, "@3")
 
-print(N)
+    # Print out result in a second map:
+    N = copy.deepcopy(M)
+    print "----\n"
+    for x,y in path:
+        N.tile_array[x][y] = Tile(x, y, "::")
+    print(N)
