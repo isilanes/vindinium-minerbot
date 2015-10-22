@@ -31,6 +31,10 @@ parser.add_argument("--server",
         help="Server URL to connect to. Default: http://vindinium.org.",
         default="http://vindinium.org")
 
+parser.add_argument("--user-id",
+        help="User ID. Default: 6ma0lt4d (isilanes).",
+        default="6ma0lt4d")
+
 o = parser.parse_args()
 
 #--------------------------------------------------------------------------------#
@@ -76,7 +80,7 @@ def is_finished(state):
 
     return state['game']['finished']
 
-def run_game(server_url, key, mode, turns, bot):
+def run_game(o, mode, turns, bot):
     """Starts a game with all the required parameters."""
 
     # Create a requests session that will be used throughout the game:
@@ -86,7 +90,7 @@ def run_game(server_url, key, mode, turns, bot):
         print('Connected and waiting for other players to join...')
 
     # Get the initial state
-    state = get_new_game_state(session, server_url, key, mode, turns)
+    state = get_new_game_state(session, o.server, o.key, mode, turns)
     print("Playing at: " + state['viewUrl'])
 
     every = 10
@@ -112,7 +116,10 @@ def run_game(server_url, key, mode, turns, bot):
     # Clean up the session
     session.close()
 
-    return utils.winner(state)
+    # Save current elo:
+    utils.save_elo(state, o)
+
+    return utils.my_result(state, o)
 
 
 if __name__ == "__main__":
@@ -140,6 +147,6 @@ if __name__ == "__main__":
 
     # Execute run loop:
     for i in range(number_of_games):
-        winner = run_game(o.server, o.key, mode, number_of_turns, Bot.MinerBot())
-        string = "\nGame finished: {0}/{1} - Winner: {2}\n".format(i+1, number_of_games, winner)
+        result = run_game(o, mode, number_of_turns, Bot.MinerBot())
+        string = "\nGame finished: {0}/{1} - Result: {2}\n".format(i+1, number_of_games, result)
         print(string)
