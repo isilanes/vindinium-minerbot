@@ -3,40 +3,66 @@
 import sys
 import time
 import requests
+import argparse
 
 from libvindinium import Bot
 from libvindinium import utils
 
-TIMEOUT = 15
+#------------------------------------------------------------------------------#
+
+# Read arguments:
+parser = argparse.ArgumentParser()
+
+parser.add_argument("--key",
+        help="User key. Default: None.",
+        default=None)
+
+parser.add_argument("--arena",
+        help="Compete on arena. Default: training.",
+        action="store_true",
+        default=False)
+
+parser.add_argument("--number",
+        help="Number of games (if arena) or turns (if training). Default: 100.",
+        type=int,
+        default=100)
+
+parser.add_argument("--server",
+        help="Server URL to connect to. Default: http://vindinium.org.",
+        default="http://vindinium.org")
+
+o = parser.parse_args()
+
+#--------------------------------------------------------------------------------#
 
 def get_new_game_state(session, server_url, key, mode='training', number_of_turns = 10):
     """Get a JSON from the server containing the current state of the game"""
 
-    if(mode=='training'):
-        #Don't pass the 'map' parameter if you want a random map
+    if mode == 'training':
+        # Don't pass the 'map' parameter if you want a random map:
         params = { 'key': key, 'turns': number_of_turns, 'map': 'm1'}
         api_endpoint = '/api/training'
-    elif(mode=='arena'):
+    else:
         params = { 'key': key}
         api_endpoint = '/api/arena'
 
-    #Wait for 10 minutes
+    # Wait for 10 minutes:
     r = session.post(server_url + api_endpoint, params, timeout=10*60)
 
-    if(r.status_code == 200):
+    if r.status_code == 200:
         return r.json()
     else:
         print("Error when creating the game")
         print(r.text)
 
 def move(session, url, direction):
-    """Send a move to the server. Moves can be one of:
-        'Stay', 'North', 'South', 'East', 'West'"""
+    """Send a move to the server.
+    Moves can be one of: 'Stay', 'North', 'South', 'East', 'West'"""
 
     try:
-        r = session.post(url, {'dir': direction}, timeout=TIMEOUT)
+        r = session.post(url, {'dir': direction}, timeout=15)
 
-        if(r.status_code == 200):
+        if r.status_code == 200:
             return r.json()
         else:
             print("Error HTTP %d\n%s\n" % (r.status_code, r.text))
@@ -46,6 +72,8 @@ def move(session, url, direction):
         return {'game': {'finished': True}}
 
 def is_finished(state):
+    """Return True if game is finished, False otherwise."""
+
     return state['game']['finished']
 
 def run_game(server_url, key, mode, turns, bot):
@@ -88,26 +116,30 @@ def run_game(server_url, key, mode, turns, bot):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
-        print('Example: %s mySecretKey training 20' % (sys.argv[0]))
-    else:
-        key = sys.argv[1]
-        mode = sys.argv[2]
+    #if len(sys.argv) < 4:
+    #    print("Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0]))
+    #    print('Example: %s mySecretKey training 20' % (sys.argv[0]))
 
-        if mode == "training":
-            number_of_games = 1
-            number_of_turns = int(sys.argv[3])
-        else: 
-            number_of_games = int(sys.argv[3])
-            number_of_turns = 300 # Ignored in arena mode
+    # User key:
+    if not o.key:
+        print("User key is required!")
+        exit()
 
-        if len(sys.argv) == 5:
-            server_url = sys.argv[4]
-        else:
-            server_url = "http://vindinium.org"
+    # Game mode:
+    mode = "training"
+    if o.arena:
+        mode = "arena"
 
-        for i in range(number_of_games):
-            winner = run_game(server_url, key, mode, number_of_turns, Bot.MinerBot())
-            string = "\nGame finished: {0}/{1} - Winner: {2}\n".format(i+1, number_of_games, winner)
-            print(string)
+    # Number of games and turns:
+    if mode == "training":
+        number_of_games = 1
+        number_of_turns = o.number
+    else: 
+        number_of_games = o.number
+        number_of_turns = 300 # ignored in arena mode
+
+    # Execute run loop:
+    for i in range(number_of_games):
+        winner = run_game(o.server, o.key, mode, number_of_turns, Bot.MinerBot())
+        string = "\nGame finished: {0}/{1} - Winner: {2}\n".format(i+1, number_of_games, winner)
+        print(string)
