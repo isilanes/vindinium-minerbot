@@ -1,5 +1,5 @@
 def winner(state):
-    """Returs who won (or None if tie)."""
+    """Returns who won (or None if tie)."""
 
     try:
         heroes = state["game"]["heroes"]
@@ -15,3 +15,10 @@ def winner(state):
         return None
     else:
         return dsu[0][1]
+
+def my_position(state):
+    """Returns my position in the match."""
+
+    pass
+    
+

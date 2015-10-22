@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import time
 import requests
 
 from libvindinium import Bot
@@ -78,6 +79,7 @@ def run_game(server_url, key, mode, turns, bot):
         # Send the move and receive the updated game state:
         url = state['playUrl']
         state = move(session, url, direction)
+        time.sleep(0.1) # do not loop too fast
 
     # Clean up the session
     session.close()
@@ -107,5 +109,5 @@ if __name__ == "__main__":
 
         for i in range(number_of_games):
             winner = run_game(server_url, key, mode, number_of_turns, Bot.MinerBot())
-            string = "\nGame finished: {0}/{1} - Winner: {2}".format(i+1, number_of_games, winner)
+            string = "\nGame finished: {0}/{1} - Winner: {2}\n".format(i+1, number_of_games, winner)
             print(string)
