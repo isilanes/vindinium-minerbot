@@ -39,7 +39,7 @@ o = parser.parse_args()
 
 #--------------------------------------------------------------------------------#
 
-def get_new_game_state(session, server_url, key, mode='training', number_of_turns = 10):
+def get_new_game_state(session, server_url, key, mode='training', number_of_turns=10):
     """Get a JSON from the server containing the current state of the game"""
 
     if mode == 'training':
@@ -51,6 +51,7 @@ def get_new_game_state(session, server_url, key, mode='training', number_of_turn
         api_endpoint = '/api/arena'
 
     # Wait for 10 minutes:
+    time.sleep(1.0)
     r = session.post(server_url + api_endpoint, params, timeout=10*60)
 
     if r.status_code == 200:
@@ -86,7 +87,7 @@ def run_game(o, mode, turns, bot):
     # Create a requests session that will be used throughout the game:
     session = requests.session()
 
-    if mode=='arena':
+    if mode == 'arena':
         print('Connected and waiting for other players to join...')
 
     # Get the initial state
@@ -117,9 +118,16 @@ def run_game(o, mode, turns, bot):
     session.close()
 
     # Save current elo:
-    utils.save_elo(state, o)
+    try:
+        utils.save_elo(state, o)
+    except:
+        # No worries if we can't:
+        pass
 
-    return utils.my_result(state, o)
+    try:
+        return utils.my_result(state, o)
+    except:
+        return None
 
 
 if __name__ == "__main__":
